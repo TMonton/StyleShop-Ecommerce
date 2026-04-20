@@ -1,0 +1,70 @@
+<div class="login-wrapper d-flex align-items-center justify-content-center vh-100">
+  <div class="login-glass-card shadow-lg">
+    <h2 class="fw-bold text-center mb-4">Bienvenido</h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      
+      <div class="mb-3">
+        <label class="form-label fw-bold">Usuario</label>
+        <input type="text" 
+               class="form-control glass-input" 
+               formControlName="username"
+               placeholder="Tu usuario">
+        
+        @if (loginForm.get('username')?.invalid && loginForm.get('username')?.touched) {
+          <small class="error-text d-block mt-1">
+            <i class="bi bi-x-circle me-1"></i>Username requerido
+          </small>
+        }
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold">Password</label>
+        <input type="password" 
+               class="form-control glass-input" 
+               formControlName="password"
+               placeholder="******">
+        
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <small class="error-text d-block mt-1">
+            <i class="bi bi-x-circle me-1"></i>Mínimo 6 caracteres
+          </small>
+        }
+      </div>
+
+      <div class="form-check d-flex align-items-center mb-3 gap-2">
+        <input class="form-check-input custom-checkbox" type="checkbox" id="remember" formControlName="remember">
+        <label class="form-check-label text-dark" for="remember">
+          Recordarme
+        </label>
+      </div>
+
+      @if (errorMessage) {
+        <div class="alert alert-danger py-2 text-center" role="alert">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <button type="submit" 
+              class="btn-primary w-100 py-2 fw-bold shadow-sm" 
+              [disabled]="loginForm.invalid || loading">
+        @if (loading) {
+          <span class="spinner-border spinner-border-sm me-2"></span>Cargando...
+        } @else {
+          Login
+        }
+      </button>
+
+      <a routerLink="/inicio" class="btn-outline-custom w-100 py-2 fw-bold mt-2">
+        <i class="bi bi-arrow-left me-2"></i>Volver al inicio
+      </a>
+
+      <div class="extra-links mt-4 text-center">
+        <a routerLink="/forgot-password" class="text-decoration-none forgot-link">
+          ¿Olvidaste tu contraseña?
+        </a>
+      </div>
+
+    </form>
+  </div>
+</div>

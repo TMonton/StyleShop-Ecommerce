@@ -1,0 +1,67 @@
+/* --- Contenedor Principal de la Grilla --- */
+.products-grid {
+  display: flex;
+  flex-wrap: wrap;       /* Para que bajen en celulares */
+  justify-content: center; /* CENTRADO HORIZONTAL REAL */
+  gap: 30px;            /* Espacio entre tarjetas */
+  width: 100%;
+  margin: 0 auto;       /* Centra el bloque en el container */
+}
+
+/* --- Item de la Grilla --- */
+.product-item {
+  flex: 0 1 320px;      /* No crece, puede achicarse, base de 320px */
+  display: flex;
+  justify-content: center;
+}
+
+/* --- Tarjeta Glass --- */
+.product-card-glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  overflow: hidden;
+  width: 100%;          /* Ocupa el ancho del product-item */
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.product-img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+}
+
+.product-card-glass .card-body {
+  padding: 20px;
+  text-align: center;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Footer de la Card (Precio y Botón) --- */
+.card-footer-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: auto; /* Empuja todo al fondo */
+  padding-top: 15px;
+}
+
+.price-tag {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--text);
+}
+
+/* Título de sección centrado */
+.section-title {
+  text-align: center;
+  margin-bottom: 50px;
+  color: var(--text);
+  font-weight: 700;
+}

@@ -1,0 +1,70 @@
+/* Contenedor principal del nav */
+.navbar-custom {
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02); /* Sombra muy sutil */
+}
+
+/* Estilo del texto de la marca */
+.brand-text {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1.25rem;
+  letter-spacing: -0.5px;
+}
+
+.logo-nav {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Links de navegación */
+.nav-link {
+  color: var(--text-light);
+  font-weight: 500;
+  margin: 0 5px;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--primary);
+}
+
+/* Clase activa de Angular */
+.active-link {
+  color: var(--primary) !important;
+  position: relative;
+}
+
+.active-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background-color: var(--primary);
+}
+
+/* Ajuste para el botón dentro del nav */
+.btn-primary {
+  /* Ya toma los estilos globales, solo ajustamos margen si es necesario */
+  box-shadow: 0 4px 10px rgba(255, 77, 109, 0.2);
+}
+
+/* Responsivo: alineación en móviles */
+@media (max-width: 991.98px) {
+  .navbar-nav {
+    padding: 1rem 0;
+  }
+  
+  .active-link::after {
+    display: none; /* Quitamos la línea en móviles para que no se vea raro */
+  }
+  
+  .btn-primary {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
