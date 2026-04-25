@@ -1,0 +1,48 @@
+<div class="carrito-container">
+
+  <div class="carrito-card">
+
+    <h2 class="titulo-carrito">🛒 Carrito</h2>
+
+    <div class="carrito-lista">
+      @for (item of carrito; track item.id) {
+        <div class="item-card">
+
+          <div class="item-info">
+            <h4>{{ item.nombre }}</h4>
+            <p class="precio">$ {{ item.precio }}</p>
+          </div>
+
+          <div class="item-controls">
+            <button (click)="restar(item)" class="btn-cantidad">-</button>
+            <span class="cantidad">{{ item.cantidad }}</span>
+            <button (click)="sumar(item)" class="btn-cantidad">+</button>
+          </div>
+
+        </div>
+      } @empty {
+        <p class="empty">No hay productos en el carrito.</p>
+      }
+    </div>
+
+    @if (carrito.length > 0) {
+      <div class="carrito-footer">
+
+        <h3 class="total">Total: ${{ total }}</h3>
+
+        <div class="acciones">
+          <button (click)="vaciarCarrito()" class="btn-vaciar">
+            🗑️ Vaciar carrito
+          </button>
+
+          <button (click)="finalizarCompra()" class="btn-finalizar">
+            Finalizar compra
+          </button>
+        </div>
+
+      </div>
+    }
+
+  </div>
+
+</div>

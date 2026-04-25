@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterView, LoginView, UserListView, RequestOTPView, VerifyOTPView, ResetPasswordView, VerifyAccountView
+from .views import RegisterView, LoginView, UserListView, RequestOTPView, VerifyOTPView, ResetPasswordView, VerifyAccountView,CartView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -10,4 +10,6 @@ urlpatterns = [
     path('verify-otp/', VerifyOTPView.as_view(), name='verify-otp'),
     path('reset-password/', ResetPasswordView.as_view(), name='reset-password'),
     path('verify-account/', VerifyAccountView.as_view(), name='verify-account'),
+    #Endpoints de carrito
+    path('cart/', CartView.as_view(), name='cart'),
 ]

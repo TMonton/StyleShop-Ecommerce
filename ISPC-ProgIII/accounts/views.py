@@ -10,7 +10,10 @@ from .serializers import RegisterSerializer, UserSerializer
 from django.utils import timezone
 from datetime import timedelta
 from .models import OTP
-
+from .models import CartItem
+from .serializers import CartItemSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 # Create your views here.
 
 class RegisterView(generics.CreateAPIView):
@@ -149,3 +152,53 @@ class ResetPasswordView(APIView):
             return Response({"message": "Contraseña actualizada correctamente."}, status=status.HTTP_200_OK)
         except OTP.DoesNotExist:
             return Response({"error": "Acceso no autorizado. Primero verificá el OTP."}, status=status.HTTP_403_FORBIDDEN)
+class CartView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        items = CartItem.objects.filter(user=request.user)
+        serializer = CartItemSerializer(items, many=True)
+
+        total = sum(item.subtotal() for item in items)
+
+        return Response({
+            "items": serializer.data,
+            "total": total
+        })
+
+    def post(self, request):
+        nombre = request.data.get('nombre')
+        precio = request.data.get('precio')
+
+        item, created = CartItem.objects.get_or_create(
+            user=request.user,
+            nombre=nombre,
+            defaults={'precio': precio, 'cantidad': 1}
+        )
+
+        if not created:
+            item.cantidad += 1
+            item.save()
+
+        return Response({"message": "Producto agregado"})
+
+    def patch(self, request):
+        item_id = request.data.get('id')
+
+        try:
+            item = CartItem.objects.get(id=item_id, user=request.user)
+
+            if item.cantidad > 1:
+                item.cantidad -= 1
+                item.save()
+            else:
+                item.delete()
+
+            return Response({"message": "Producto actualizado"})
+        except CartItem.DoesNotExist:
+            return Response({"error": "Producto no encontrado"}, status=404)
+
+    # 🔥 VACIAR CARRITO
+    def delete(self, request):
+        CartItem.objects.filter(user=request.user).delete()
+        return Response({"message": "Carrito vaciado correctamente"})

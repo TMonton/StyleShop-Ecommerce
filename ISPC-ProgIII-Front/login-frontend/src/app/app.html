@@ -1,1 +1,8 @@
+<!-- Usuario logueado -->
+@if (auth.isLoggedIn()) {
+  <app-nav-usuarios></app-nav-usuarios>
+} @else {
+  <!-- Usuario NO logueado -->
+  <app-nav></app-nav>
+}
 <router-outlet></router-outlet>

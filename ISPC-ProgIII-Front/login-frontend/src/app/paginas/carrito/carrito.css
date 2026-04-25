@@ -1,0 +1,151 @@
+/* CONTENEDOR */
+.carrito-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+
+}
+
+/* TARJETA */
+.carrito-card {
+
+  width: 100%;
+  max-width: 600px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 25px;
+
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* TÍTULO */
+.titulo-carrito {
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* LISTA */
+.carrito-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* ITEM */
+.item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 15px;
+  border-radius: 12px;
+
+  background: #f9f9f9;
+  border: 1px solid #eee;
+
+  transition: 0.2s;
+}
+
+.item-card:hover {
+  background: #f1f3f5;
+}
+
+/* INFO */
+.item-info h4 {
+  margin: 0;
+  color: #222;
+}
+
+.precio {
+  color: #666;
+  font-size: 14px;
+}
+
+/* CONTROLES */
+.item-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-cantidad {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+
+  background: #0d6efd;
+  color: white;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-cantidad:hover {
+  background: #0b5ed7;
+}
+
+.cantidad {
+  font-weight: bold;
+  min-width: 20px;
+  text-align: center;
+  color: #333;
+}
+
+/* FOOTER */
+.carrito-footer {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.total {
+  color: #111;
+  margin-bottom: 15px;
+}
+
+/* BOTONES */
+.acciones {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-vaciar {
+  flex: 1;
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-vaciar:hover {
+  background: #b02a37;
+}
+
+.btn-finalizar {
+  flex: 2;
+  background: #198754;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-finalizar:hover {
+  background: #157347;
+}
+
+/* VACÍO */
+.empty {
+  text-align: center;
+  color: #888;
+}
