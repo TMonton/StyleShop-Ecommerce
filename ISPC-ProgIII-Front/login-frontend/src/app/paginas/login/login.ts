@@ -1,19 +1,22 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
   imports: [ReactiveFormsModule, CommonModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login {
+export class Login implements OnInit {
+
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   loading = false;
   errorMessage = '';
@@ -21,9 +24,32 @@ export class Login {
   loginForm: FormGroup = this.fb.group({
     username: ['', Validators.required],
     password: ['', [Validators.required, Validators.minLength(6)]],
-    remember: [false]
+    remember: [false],
   });
 
+  // 🔥 CAPTURA EL CODE DE GOOGLE
+  ngOnInit() {
+    const code = this.route.snapshot.queryParamMap.get('code');
+
+    if (code) {
+      this.http.post<any>('http://localhost:8000/api/google-login/', { code }).subscribe({
+        next: (res) => {
+          console.log('LOGIN GOOGLE OK', res); // 🔥 DEBUG
+
+          localStorage.setItem('access', res.access);
+          localStorage.setItem('user', JSON.stringify(res.user));
+
+          this.router.navigate(['/home']);
+        },
+        error: (err) => {
+          console.error('ERROR GOOGLE', err); // 🔥 DEBUG
+          this.errorMessage = 'Error con Google';
+        },
+      });
+    }
+  }
+
+  // 🔐 LOGIN NORMAL
   onSubmit() {
     if (this.loginForm.invalid) return;
 
@@ -34,9 +60,6 @@ export class Login {
 
     this.http.post<any>('http://localhost:8000/api/login/', { username, password }).subscribe({
       next: (response) => {
-        console.log('Login successful', response);
-
-        // guardar token
         if (remember) {
           localStorage.setItem('access', response.access);
         } else {
@@ -51,7 +74,24 @@ export class Login {
       },
       complete: () => {
         this.loading = false;
-      }
+      },
     });
+  }
+
+  // 🔥 GOOGLE LOGIN FINAL
+  loginGoogle() {
+    const clientId = '139048359755-g8i9chj72k6t55gl8e1kd3vdjam2gqrq.apps.googleusercontent.com'; // ✅ TU CLIENT REAL
+
+    const redirectUri = 'http://localhost:4200/login';
+
+    const url =
+      'https://accounts.google.com/o/oauth2/v2/auth' +
+      `?client_id=${clientId}` +
+      `&redirect_uri=${redirectUri}` +
+      `&response_type=code` +
+      `&scope=openid email profile` +
+      `&prompt=select_account`;
+
+    window.location.href = url;
   }
 }

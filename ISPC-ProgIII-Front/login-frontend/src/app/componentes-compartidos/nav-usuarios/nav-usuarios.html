@@ -1,29 +1,57 @@
 <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
   <div class="container">
+
+    <!-- LOGO -->
     <a class="navbar-brand d-flex align-items-center gap-2" routerLink="/home">
       <img src="/Style_shop_logo.webp" alt="StyleShop" class="logo-nav">
       <span class="brand-text">StyleShop</span>
     </a>
 
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <div class="navbar-nav ms-auto align-items-center">
+    <div class="collapse navbar-collapse">
+      <div class="navbar-nav ms-auto align-items-center gap-3">
 
-        <a class="nav-link" routerLink="/shop" routerLinkActive="active-link">Shop</a>
+        <!-- SHOP -->
+        <a class="nav-link" routerLink="/shop">Shop</a>
 
-
-        <!-- 🛒 Carrito con contador -->
-        <a class="nav-link position-relative" routerLink="/carrito" routerLinkActive="active-link">
+        <!-- 🛒 CARRITO -->
+        <a class="nav-link position-relative" routerLink="/carrito">
           <i class="bi bi-cart"></i> Carrito
 
           @if (totalItems > 0) {
-          <span class="badge bg-danger">
-            {{ totalItems }}
-          </span>
+            <span class="badge bg-danger">
+              {{ totalItems }}
+            </span>
           }
         </a>
-        <button (click)="logout()" class="btn btn-primary ms-lg-3">
-          Cerrar sesión
-        </button>
+
+        <!-- 👤 USUARIO -->
+          @if (user) {
+          <div class="user-box">
+
+            <!-- FOTO -->
+            <img [src]="user.photo || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'" class="rounded-circle" width="35"
+              height="35" alt="User profile">
+
+            <!-- NOMBRE -->
+            <span class="text-white fw-semibold">
+              {{ user.username }}
+            </span>
+          </div>
+
+          <!-- LOGOUT -->
+          <button (click)="logout()" class="btn btn-primary">
+            Cerrar sesión
+          </button>
+
+        } @else {
+
+          <!-- LOGIN -->
+          <a routerLink="/login" class="btn btn-outline-light">
+            Iniciar sesión
+          </a>
+
+        }
+
       </div>
     </div>
   </div>

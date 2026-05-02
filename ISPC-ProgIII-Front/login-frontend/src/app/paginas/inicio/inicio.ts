@@ -6,7 +6,7 @@ import { ServiceCarrito } from '../../services/service-carrito';
 @Component({
   selector: 'app-inicio',
   standalone: true, // Asegúrate de que tenga standalone: true
-  imports: [RouterLink, Nav],
+  imports: [RouterLink],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
 })

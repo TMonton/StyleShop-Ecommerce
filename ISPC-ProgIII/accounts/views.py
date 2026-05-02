@@ -1,20 +1,24 @@
-from django.shortcuts import render
+import os
+import requests  # 🔥 FALTABA ESTO
+from datetime import timedelta
+
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+from django.utils import timezone
+
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
+from rest_framework.permissions import AllowAny, IsAuthenticated
+
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer, UserSerializer
-from django.utils import timezone
-from datetime import timedelta
-from .models import OTP
-from .models import CartItem
-from .serializers import CartItemSerializer
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
-# Create your views here.
+
+from .models import OTP, CartItem
+from .serializers import RegisterSerializer, UserSerializer, CartItemSerializer
+
+# =========================
+# 🔐 AUTH
+# =========================
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -22,93 +26,137 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
     def perform_create(self, serializer):
-        # 1. Guardamos el usuario pero como INACTIVO
         user = serializer.save()
-        user.is_active = False 
+        user.is_active = False
         user.save()
 
-        # 2. Generamos el OTP de bienvenida
         otp_obj = OTP.objects.create(user=user)
         code = otp_obj.generate_code()
-        
-        # 3. Lo mostramos en consola para el TP
-        print(f"\n{"="*30}")
+
+        print(f"\n{'='*30}")
         print(f"NUEVO REGISTRO: {user.username}")
         print(f"CÓDIGO DE VERIFICACIÓN: {code}")
-        print(f"{"="*30}\n")
-        
+        print(f"{'='*30}\n")
+
+
 class VerifyAccountView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
         email = request.data.get('email')
         code = request.data.get('otp')
-        
+
         try:
-            # Buscamos el código que coincida con el email
             otp_record = OTP.objects.get(user__email=email, code=code)
-            
-            # ACTIVACIÓN: Cambiamos el estado del usuario a True
+
             user = otp_record.user
             user.is_active = True
             user.save()
-            
-            # Borramos el código para que no se use de nuevo
-            otp_record.delete()
-            
-            return Response({
-                "message": "Cuenta activada con éxito. Ya podés iniciar sesión."
-            }, status=status.HTTP_200_OK)
-            
-        except OTP.DoesNotExist:
-            return Response({
-                "error": "Código de verificación inválido o expirado."
-            }, status=status.HTTP_400_BAD_REQUEST)
 
-class UserListView(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny]
-    
+            otp_record.delete()
+
+            return Response({"message": "Cuenta activada correctamente"})
+        except OTP.DoesNotExist:
+            return Response({"error": "Código inválido"}, status=400)
+
+
 class LoginView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
+
         user = authenticate(username=username, password=password)
+
         if user:
             refresh = RefreshToken.for_user(user)
+
             return Response({
-                'refresh': str(refresh),
                 'access': str(refresh.access_token),
+                'refresh': str(refresh),
                 'user': UserSerializer(user).data
             })
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-    
-# --- Vistas de Recuperación de Contraseña ---
+
+        return Response({'error': 'Credenciales inválidas'}, status=401)
+
+
+# =========================
+# 🔥 GOOGLE LOGIN (AGREGADO)
+# =========================
+
+class GoogleLoginView(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        code = request.data.get('code')
+
+        if not code:
+            return Response({"error": "No code"}, status=400)
+
+        token_url = "https://oauth2.googleapis.com/token"
+
+        data = {
+            "code": code,
+            "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+            "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+            "redirect_uri": "http://localhost:4200/login",  # ⚠️ IMPORTANTE
+            "grant_type": "authorization_code",
+        }
+
+        token_res = requests.post(token_url, data=data).json()
+        access_token = token_res.get("access_token")
+
+        if not access_token:
+            return Response({"error": token_res}, status=400)
+
+        user_info = requests.get(
+            "https://www.googleapis.com/oauth2/v2/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"}
+        ).json()
+
+        email = user_info.get("email")
+
+        if not email:
+            return Response({"error": "No email"}, status=400)
+
+        user, _ = User.objects.get_or_create(
+            username=email,
+            defaults={"email": email}
+        )
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "user": UserSerializer(user).data
+        })
+
+
+# =========================
+# 🔐 RECUPERACIÓN PASSWORD
+# =========================
 
 class RequestOTPView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
         email = request.data.get('email')
+
         try:
             user = User.objects.get(email=email)
-            # Borramos OTPs viejos del usuario para no acumular basura
             OTP.objects.filter(user=user).delete()
-            
+
             otp_obj = OTP.objects.create(user=user)
             code = otp_obj.generate_code()
-            
-            print(f"--- DEBUG OTP ---")
-            print(f"Usuario: {user.username} | Email: {email}")
-            print(f"Código Generado: {code}")
-            print(f"------------------")
-            
-            return Response({"message": "OTP generado con éxito. Revisá la consola."}, status=status.HTTP_200_OK)
+
+            print(f"OTP: {code}")
+
+            return Response({"message": "OTP generado"})
         except User.DoesNotExist:
-            return Response({"error": "No existe un usuario con ese email."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Usuario no existe"}, status=404)
+
 
 class VerifyOTPView(APIView):
     permission_classes = (AllowAny,)
@@ -116,20 +164,20 @@ class VerifyOTPView(APIView):
     def post(self, request):
         email = request.data.get('email')
         code = request.data.get('otp')
-        
+
         try:
-            otp_record = OTP.objects.get(user__email=email, code=code)
-            
-            # Opcional: Validar que el OTP no tenga más de 10 minutos
-            if otp_record.created_at < timezone.now() - timedelta(minutes=10):
-                return Response({"error": "El código ha expirado."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            otp_record.is_verified = True
-            otp_record.save()
-            
-            return Response({"message": "Código verificado. Ya podés cambiar tu contraseña."}, status=status.HTTP_200_OK)
+            otp = OTP.objects.get(user__email=email, code=code)
+
+            if otp.created_at < timezone.now() - timedelta(minutes=10):
+                return Response({"error": "OTP expirado"}, status=400)
+
+            otp.is_verified = True
+            otp.save()
+
+            return Response({"message": "OTP válido"})
         except OTP.DoesNotExist:
-            return Response({"error": "Código o email incorrectos."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "OTP incorrecto"}, status=400)
+
 
 class ResetPasswordView(APIView):
     permission_classes = (AllowAny,)
@@ -137,21 +185,25 @@ class ResetPasswordView(APIView):
     def post(self, request):
         email = request.data.get('email')
         new_password = request.data.get('new_password')
-        
+
         try:
-            # Aquí está la validación: chequeamos que el OTP esté verificado
-            otp_record = OTP.objects.get(user__email=email, is_verified=True)
-            
-            user = otp_record.user
+            otp = OTP.objects.get(user__email=email, is_verified=True)
+
+            user = otp.user
             user.set_password(new_password)
             user.save()
-            
-            # Una vez usada, borramos la sesión de recuperación
-            otp_record.delete()
-            
-            return Response({"message": "Contraseña actualizada correctamente."}, status=status.HTTP_200_OK)
+
+            otp.delete()
+
+            return Response({"message": "Password actualizado"})
         except OTP.DoesNotExist:
-            return Response({"error": "Acceso no autorizado. Primero verificá el OTP."}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "No autorizado"}, status=403)
+
+
+# =========================
+# 🛒 CARRITO
+# =========================
+
 class CartView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -196,9 +248,8 @@ class CartView(APIView):
 
             return Response({"message": "Producto actualizado"})
         except CartItem.DoesNotExist:
-            return Response({"error": "Producto no encontrado"}, status=404)
+            return Response({"error": "No encontrado"}, status=404)
 
-    # 🔥 VACIAR CARRITO
     def delete(self, request):
         CartItem.objects.filter(user=request.user).delete()
-        return Response({"message": "Carrito vaciado correctamente"})
+        return Response({"message": "Carrito vaciado"})

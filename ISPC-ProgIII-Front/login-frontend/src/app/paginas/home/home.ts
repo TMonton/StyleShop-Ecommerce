@@ -4,7 +4,7 @@ import { NavUsuarios } from '../../componentes-compartidos/nav-usuarios/nav-usua
 
 @Component({
   selector: 'app-home',
-  imports: [NavUsuarios],
+  imports: [],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
