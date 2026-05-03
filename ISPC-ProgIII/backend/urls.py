@@ -24,6 +24,7 @@ urlpatterns = [
     
     path('admin/', admin.site.urls),
     path('api/', include('accounts.urls')),
+    path('api/cart/', include('cart.urls')),
     
     # 🔥 GOOGLE AUTH
     path('social-auth/', include('social_django.urls', namespace='social')),

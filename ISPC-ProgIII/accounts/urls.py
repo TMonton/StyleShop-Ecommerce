@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import GoogleLoginView,RegisterView, LoginView, RequestOTPView, VerifyOTPView, ResetPasswordView, VerifyAccountView, CartView
+from .views import GoogleLoginView,RegisterView, LoginView, RequestOTPView, VerifyOTPView, ResetPasswordView, VerifyAccountView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -11,10 +11,7 @@ urlpatterns = [
     path('reset-password/', ResetPasswordView.as_view(), name='reset-password'),
     path('verify-account/', VerifyAccountView.as_view(), name='verify-account'),
     
-    #Endpoints de carrito
-    path('cart/', CartView.as_view(), name='cart'),
-    
     # 🔥 GOOGLE AUTH
-   path('google-login/', GoogleLoginView.as_view()),
+    path('google-login/', GoogleLoginView.as_view()),
     
 ]

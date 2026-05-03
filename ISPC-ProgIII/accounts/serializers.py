@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import UserProfile, CartItem
+from .models import UserProfile
 
 # =========================
 # 👤 USER (CON FOTO GOOGLE)
@@ -52,16 +52,3 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['user', 'encrypted_info']
 
 
-# =========================
-# 🛒 CART
-# =========================
-
-class CartItemSerializer(serializers.ModelSerializer):
-    subtotal = serializers.SerializerMethodField()
-
-    class Meta:
-        model = CartItem
-        fields = ['id', 'nombre', 'precio', 'cantidad', 'subtotal']
-
-    def get_subtotal(self, obj):
-        return obj.subtotal()
