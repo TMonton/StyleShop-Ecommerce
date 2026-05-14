@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'social_django',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist', 
     'corsheaders',
 
     'accounts',
@@ -133,6 +134,8 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
+    'ROTATE_REFRESH_TOKENS': True,  # 🔥 importante
+    'BLACKLIST_AFTER_ROTATION': True,  # 🔥 clave para seguridad
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 

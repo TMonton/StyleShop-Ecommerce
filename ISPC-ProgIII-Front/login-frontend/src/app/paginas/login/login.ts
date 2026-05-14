@@ -27,22 +27,25 @@ export class Login implements OnInit {
     remember: [false],
   });
 
-  // 🔥 CAPTURA EL CODE DE GOOGLE
+  // 🔥 LOGIN GOOGLE (recibe code)
   ngOnInit() {
     const code = this.route.snapshot.queryParamMap.get('code');
 
     if (code) {
       this.http.post<any>('http://localhost:8000/api/google-login/', { code }).subscribe({
         next: (res) => {
-          console.log('LOGIN GOOGLE OK', res); // 🔥 DEBUG
+          console.log('LOGIN RESPONSE:', res);
 
+
+          // 🔐 guardar TODO
           localStorage.setItem('access', res.access);
+          localStorage.setItem('refresh', res.refresh);
           localStorage.setItem('user', JSON.stringify(res.user));
 
           this.router.navigate(['/home']);
         },
         error: (err) => {
-          console.error('ERROR GOOGLE', err); // 🔥 DEBUG
+          console.error('ERROR GOOGLE', err);
           this.errorMessage = 'Error con Google';
         },
       });
@@ -60,11 +63,11 @@ export class Login implements OnInit {
 
     this.http.post<any>('http://localhost:8000/api/login/', { username, password }).subscribe({
       next: (response) => {
-        if (remember) {
-          localStorage.setItem('access', response.access);
-        } else {
-          sessionStorage.setItem('access', response.access);
-        }
+
+        // 🔥 guardar tokens SIEMPRE (clave para refresh)
+        localStorage.setItem('access', response.access);
+        localStorage.setItem('refresh', response.refresh);
+        localStorage.setItem('user', JSON.stringify(response.user));
 
         this.router.navigate(['/home']);
       },
@@ -78,9 +81,9 @@ export class Login implements OnInit {
     });
   }
 
-  // 🔥 GOOGLE LOGIN FINAL
+  // 🔥 REDIRECCIÓN GOOGLE
   loginGoogle() {
-    const clientId = '139048359755-g8i9chj72k6t55gl8e1kd3vdjam2gqrq.apps.googleusercontent.com'; // ✅ TU CLIENT REAL
+    const clientId = '139048359755-g8i9chj72k6t55gl8e1kd3vdjam2gqrq.apps.googleusercontent.com';
 
     const redirectUri = 'http://localhost:4200/login';
 

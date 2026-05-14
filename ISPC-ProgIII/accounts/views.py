@@ -13,6 +13,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
+
 from .models import OTP
 from .serializers import RegisterSerializer, UserSerializer
 
@@ -200,3 +201,14 @@ class ResetPasswordView(APIView):
             return Response({"error": "No autorizado"}, status=403)
 
 
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()  # 🔥 lo invalida
+            return Response({"message": "Logout exitoso"})
+        except Exception:
+            return Response({"error": "Token inválido"}, status=400)
