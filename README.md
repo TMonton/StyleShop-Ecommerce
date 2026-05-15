@@ -69,13 +69,15 @@ Gestión de órdenes
 Panel de administración
 
 ▶️ Cómo ejecutar el proyecto
-Backend
+
+**Backend
 cd backend
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py runserver
-Frontend
+
+**Frontend
 cd ISPC-ProgIII-Front/login-frontend
 npm install
 ng serve
