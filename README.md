@@ -2,7 +2,7 @@
 📌 Descripción
 StyleShop es una aplicación web de e-commerce desarrollada con arquitectura Full Stack, que permite a los usuarios navegar productos, gestionar un carrito de compras y realizar procesos de autenticación seguros.
 
-El proyecto integra:
+#El proyecto integra:
 
 🔐 Autenticación con JWT (access + refresh)
 
@@ -70,14 +70,14 @@ Panel de administración
 
 ▶️ Cómo ejecutar el proyecto
 
-**Backend
+Backend
 cd backend
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py runserver
 
-**Frontend
+Frontend
 cd ISPC-ProgIII-Front/login-frontend
 npm install
 ng serve
