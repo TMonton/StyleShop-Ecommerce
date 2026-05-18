@@ -33,14 +33,13 @@ export class Login implements OnInit {
 
     if (code) {
       this.http.post<any>('http://localhost:8000/api/google-login/', { code }).subscribe({
-        next: (res) => {
-          console.log('LOGIN RESPONSE:', res);
+        next: (response) => {
 
 
           // 🔐 guardar TODO
-          localStorage.setItem('access', res.access);
-          localStorage.setItem('refresh', res.refresh);
-          localStorage.setItem('user', JSON.stringify(res.user));
+          localStorage.setItem('access', response.access);
+          localStorage.setItem('refresh', response.refresh);
+          localStorage.setItem('user', JSON.stringify(response.user));
 
           this.router.navigate(['/home']);
         },

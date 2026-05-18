@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import GoogleLoginView,RegisterView, LoginView,LogoutView, RequestOTPView, VerifyOTPView, ResetPasswordView, VerifyAccountView
+from .views import DeleteUserView, GoogleLoginView, RegisterView, LoginView, LogoutView, RequestOTPView, VerifyOTPView, ResetPasswordView, VerifyAccountView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
+    path('delete-account/', DeleteUserView.as_view()),
     path('login/', LoginView.as_view(), name='login'),
     
     # Endpoints de recuperación

@@ -39,6 +39,16 @@ class RegisterView(generics.CreateAPIView):
         print(f"CÓDIGO DE VERIFICACIÓN: {code}")
         print(f"{'='*30}\n")
 
+class DeleteUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        try:
+            user = request.user
+            user.delete()
+            return Response({"message": "Usuario eliminado correctamente"})
+        except Exception:
+            return Response({"error": "Error al eliminar usuario"}, status=400)
 
 class VerifyAccountView(APIView):
     permission_classes = (AllowAny,)
