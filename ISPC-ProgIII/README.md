@@ -137,12 +137,12 @@ python manage.py test
 2) Loguear y guardar `access`
 3) Enviar `Authorization: Bearer <access>` en cada request
 
-Implementación para los nuevos usuarios que tiene que validar su cuenta por primera vez al registarse si no no les deja ingresar:
+## Implementación para los nuevos usuarios que tiene que validar su cuenta por primera vez al registarse si no no les deja ingresar:
 
 1. Flujo de Registro y Activación (User Journey A)
 Este paso comprueba que nadie pueda entrar al sistema sin validar su identidad primero.
 
-Paso 1.1: Registro de usuario
+## Paso 1.1: Registro de usuario
 
 Endpoint: POST /api/register/
 
@@ -155,7 +155,7 @@ Body:  {
 
 Qué mirar: En la consola de Django, buscá el mensaje --- VERIFICACIÓN DE CUENTA --- y copiá el código de 6 dígitos.
 
-Paso 1.2: Intento de Login fallido (Prueba de seguridad) esto se puede hacer desde el login de la web 
+## Paso 1.2: Intento de Login fallido (Prueba de seguridad) esto se puede hacer desde el login de la web 
 
 Endpoint: POST /api/login/
 
@@ -163,7 +163,18 @@ Body: {"username": "juan", "password": "juan123"}
 
 Qué mirar: Debería devolver un error (401 o similar) porque el usuario tiene is_active = False. Esto demuestra que la protección funciona.
 
-Paso 1.3: Verificación de cuenta
+## Paso Extra (Si se te venció el OTP): Pedir el OTP
+Método: POST
+
+URL: http://127.0.0.1:8000/api/request-otp/
+
+Body (JSON):
+
+JSON
+{ "email": "tomas@test.com" }
+Resultado: En tu terminal de VS Code o CMD debería aparecer: --- DEBUG OTP --- Código Generado: 123456.
+
+## Paso 1.3: Verificación de cuenta
 
 Endpoint: POST /api/verify-account/
 
@@ -175,7 +186,7 @@ Body:   {
 
 Qué mirar: Debería responder "Cuenta activada con éxito".
 
-Paso 1.4: Login exitoso
+## Paso 1.4: Login exitoso
 
 Repetí el Paso 1.2. Ahora sí deberías recibir los tokens JWT (access y refresh).
 
@@ -184,14 +195,14 @@ Repetí el Paso 1.2. Ahora sí deberías recibir los tokens JWT (access y refres
 
 
 
-Implementación del OTP en la contraseña para cambiar la contraseña si se te olvidó: 
+## Implementación del OTP en la contraseña para cambiar la contraseña si se te olvidó: 
 
 ¡Buenísimo! Vamos por partes: primero te explico cómo testearlo (usando Postman o Insomnia) y después te doy la "letra" para que luzcas como un experto cuando te pregunten qué hiciste.
 
 🛠 Cómo comprobar el funcionamiento
 Como el TP pide que el código se imprima en consola, vas a tener que estar atento a la terminal donde corre el servidor (python manage.py runserver).
 
-Paso 1: Pedir el OTP
+## Paso 1: Pedir el OTP
 Método: POST
 
 URL: http://127.0.0.1:8000/api/request-otp/
@@ -202,7 +213,7 @@ JSON
 { "email": "tomas@test.com" }
 Resultado: En tu terminal de VS Code o CMD debería aparecer: --- DEBUG OTP --- Código Generado: 123456.
 
-Paso 2: Verificar el OTP
+## Paso 2: Verificar el OTP
 Método: POST
 
 URL: http://127.0.0.1:8000/api/verify-otp/
@@ -216,7 +227,7 @@ JSON
 }
 Resultado: Deberías recibir un 200 OK con el mensaje de éxito. Esto internamente marca el registro en la DB como is_verified = True.
 
-Paso 3: Cambiar la contraseña
+## Paso 3: Cambiar la contraseña
 Método: POST
 
 URL: http://127.0.0.1:8000/api/reset-password/
@@ -230,7 +241,7 @@ JSON
 }
 Resultado: El servidor busca el OTP verificado, cambia la contraseña del usuario y borra el registro de OTP para que no se pueda usar de nuevo.
 
-🧠 Explicación técnica (para el profesor)
+## 🧠 Explicación técnica (para el profesor)
 Si te preguntan qué hiciste en las views, podés explicarlo así dividiéndolo en los tres pilares:
 
 1. RequestOTPView (Generación)
