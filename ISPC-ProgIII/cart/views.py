@@ -1,27 +1,30 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 from .models import CartItem
 from .serializers import CartItemSerializer
 
-# =========================
-# 🛒 CARRITO
-# =========================
+# ==========================================
+# 🔄 FUNCIÓN AUXILIAR (RETORNA EL CARRITO)
+# ==========================================
+def obtener_carrito_response(user):
+    items = CartItem.objects.filter(user=user).order_by('id')
+    serializer = CartItemSerializer(items, many=True)
+    total = sum(item.subtotal() for item in items)
+    return Response({
+        "items": serializer.data,
+        "total": total
+    })
 
+# =========================
+# 🛒 CARRITO PRINCIPAL
+# =========================
 class CartView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        items = CartItem.objects.filter(user=request.user)
-        serializer = CartItemSerializer(items, many=True)
-
-        total = sum(item.subtotal() for item in items)
-
-        return Response({
-            "items": serializer.data,
-            "total": total
-        })
+        return obtener_carrito_response(request.user)
 
     def post(self, request):
         nombre = request.data.get('nombre')
@@ -37,13 +40,34 @@ class CartView(APIView):
             item.cantidad += 1
             item.save()
 
-        return Response({"message": "Producto agregado"})
+        return obtener_carrito_response(request.user)
 
-    def patch(self, request):
-        item_id = request.data.get('id')
 
+# =========================
+# ➕ SUMAR
+# =========================
+class CartItemSumarView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, id):
         try:
-            item = CartItem.objects.get(id=item_id, user=request.user)
+            item = CartItem.objects.get(id=id, user=request.user)
+            item.cantidad += 1
+            item.save()
+            return obtener_carrito_response(request.user)
+        except CartItem.DoesNotExist:
+            return Response({"error": "No encontrado"}, status=404)
+
+
+# =========================
+# ➖ RESTAR
+# =========================
+class CartItemRestarView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, id):
+        try:
+            item = CartItem.objects.get(id=id, user=request.user)
 
             if item.cantidad > 1:
                 item.cantidad -= 1
@@ -51,11 +75,17 @@ class CartView(APIView):
             else:
                 item.delete()
 
-            return Response({"message": "Producto actualizado"})
+            return obtener_carrito_response(request.user)
         except CartItem.DoesNotExist:
             return Response({"error": "No encontrado"}, status=404)
 
+
+# =========================
+# 🗑️ VACIAR
+# =========================
+class CartVaciarView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def delete(self, request):
         CartItem.objects.filter(user=request.user).delete()
-        return Response({"message": "Carrito vaciado"})
-    
+        return Response({"items": [], "total": 0})

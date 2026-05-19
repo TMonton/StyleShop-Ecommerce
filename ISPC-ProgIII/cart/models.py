@@ -9,3 +9,7 @@ class CartItem(models.Model):
 
     def subtotal(self):
         return self.precio * self.cantidad
+
+    class Meta:
+        ordering = ['id']  # 🔥 CLAVE
+

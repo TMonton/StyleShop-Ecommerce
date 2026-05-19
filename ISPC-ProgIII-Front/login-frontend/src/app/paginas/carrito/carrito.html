@@ -14,9 +14,9 @@
           </div>
 
           <div class="item-controls">
-            <button (click)="restar(item)" class="btn-cantidad">-</button>
+            <button (click)="restar(item.id)" class="btn-cantidad">-</button>
             <span class="cantidad">{{ item.cantidad }}</span>
-            <button (click)="sumar(item)" class="btn-cantidad">+</button>
+            <button (click)="sumar(item.id)" class="btn-cantidad">+</button>
           </div>
 
         </div>
